@@ -1,0 +1,118 @@
+save_dir: experiments
+experiment_name: default_ucr_hyper_fft_exp
+git_hash: null
+seed: 42
+reproducible: true
+device: cuda
+gpu: 0
+torch_compile_model: false
+quant_backend: null
+
+trainer:
+  type: ContrastiveTrainer
+  args:
+    resume_checkpoint: null
+    epochs: 100
+    save_checkpoints: true
+    save_best_loss_checkpoint: true
+    checkpoint_save_freq: 50
+    val_freq: 1
+    eval_nearest_neighbor_classification: true
+    eval_prototype_classification: true
+    plot_metrics: true
+
+model:
+  type: InceptionTimePlus
+  args:
+    dropout_rate: 0.1
+    # global_pooling can be max, avg, ppv, max_avg, max_ppv
+    global_pooling: max_avg
+    input_projection:
+      enabled: true
+      dim: 64
+      training_mask_probability: 0.0
+      norm_type: layer
+    output_projection:
+      enabled: true
+      bias: true
+      num_layers: 2
+      hidden_dim: 128
+      output_dim: 128
+      norm_type: null
+    cosine: true
+    ce_head: false # false means projection head is used for both SupCon and CE loss
+    use_fft: true
+    use_phase: true
+    fft_on_raw: false
+
+dataset:
+  type: ContrastiveTimeSeriesDataset
+  args:
+    root: data
+    loader: UCR
+    name: AllGestureWiimoteZ
+    max_seq_len: 3000
+    crop_scale: [0.85, 0.999]
+  augmentations:
+    train:
+      - type: Standardize # mean & std injected in get_transform()
+      - type: TsToTensor
+    test:
+      - type: Standardize # mean & std injected in get_transform()
+      - type: TsToTensor
+
+dataloader:
+  type: DataLoader
+  args:
+    batch_size: 8
+    num_workers: 0
+
+optimizer:
+  type: SGD
+  args:
+    lr: 0.001
+    momentum: 0.9
+    weight_decay: 3e-4
+
+lr_scheduler:
+  type: OneCycleLR
+  args: {}
+
+loss:
+  type: MultiObjectiveLoss
+  args:
+    losses:
+      - type: RescaledTemperatureCELoss
+        args:
+          temperature: 0.0125
+          base_temperature: 0.025
+          use_class_weights: false
+      - type: FFTConsistencyLoss
+        args:
+          loss_type: "cosine"
+    lambdas:
+      - 1.0
+      - 1.0
+    lambda_warmup_epochs: # (0 = immediate)
+      - 0
+      - 0
+
+ood_eval:
+  enabled: true
+  eval_freq: 100
+  plot_emb_tsne: false
+  plot_emb_umap: false
+  methods:
+    - type: NearestNeighborScore
+      args:
+        k: 1
+        distance_metric: cosine
+    - type: MahalanobisScore
+      args:
+        normalize: true
+  metrics:
+    - auroc
+    - fpr95
+  data:
+    type: far # near or far
+    far_ood_subtype: all # same, diff, or all; relevant for type far only

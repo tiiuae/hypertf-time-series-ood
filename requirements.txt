@@ -1,0 +1,21 @@
+aeon==1.1.0
+faiss-cpu==1.10.0
+fastai==2.7.19
+fastcore==1.7.29
+ipykernel==6.29.5
+matplotlib==3.10.0; sys_platform == 'linux'
+matplotlib==3.9.4; sys_platform == 'darwin'
+numpy==1.26.4
+omegaconf==2.3.0
+pandas==2.2.3
+pathspec<0.12
+python-dotenv>=1.2.1,<2.0.0
+schedulefree==1.4
+scikit-learn==1.6.1
+scipy==1.13.1; sys_platform == 'darwin'
+scipy==1.15.1; sys_platform == 'linux'
+seaborn==0.13.2
+statsmodels==0.14.4
+torch==2.2.2
+tsai==0.3.9
+umap-learn==0.5.7

@@ -1,0 +1,4 @@
+epoch,loss,accuracy,f1,accuracy_nn,f1_nn,accuracy_prot,f1_prot,pre_proj_dispersion,post_proj_dispersion,pre_proj_compactness,post_proj_compactness,nn_compactness,nn_dispersion
+1,9.5202,40.00,34.5238,65.00,60.2273,45.00,41.4530,0.0821,0.0754,0.9154,0.9176,0.9219,0.9027
+2,9.3537,45.00,44.4444,65.00,60.2273,45.00,41.4530,0.0901,0.0762,0.9092,0.9209,0.9147,0.8938
+3,9.4793,30.00,31.9841,65.00,60.0289,45.00,41.4530,0.0924,0.0784,0.9060,0.9199,0.9096,0.8890

@@ -1,0 +1,113 @@
+save_dir: experiments
+experiment_name: default_uea_exp_euclidean
+git_hash: null
+seed: 42
+reproducible: true
+device: cuda
+gpu: 0
+torch_compile_model: false
+quant_backend: null
+
+trainer:
+  type: BaseTrainer
+  args:
+    resume_checkpoint: null
+    epochs: 3
+    save_checkpoints: false
+    save_best_loss_checkpoint: true
+    checkpoint_save_freq: 50
+    val_freq: 1
+    eval_nearest_neighbor_classification: true
+    eval_prototype_classification: true
+    plot_metrics: true
+
+model:
+  type: InceptionTimePlus
+  args:
+    dropout_rate: 0.1
+    # global_pooling can be max, avg, ppv, max_avg, max_ppv 
+    global_pooling: max_avg
+    input_projection:
+      enabled: true
+      dim: 32
+      training_mask_probability: 0.0
+    output_projection:
+      enabled: true
+      bias: true
+      num_layers: 2
+      hidden_dim: 128
+      output_dim: 128
+      norm_type: null
+    cosine: false
+
+dataset:
+  type: CustomTimeSeriesDataset
+  args:
+    root: data
+    loader: UEA
+    name: Epilepsy
+    max_seq_len: 3000
+    max_sample_per_class: 10
+    id_classes: [1, 3]
+  augmentations:
+    train:
+      - type: Standardize  # mean & std injected in get_transform()
+      - type: TsToTensor
+    test:
+      - type: Standardize  # mean & std injected in get_transform()
+      - type: TsToTensor
+
+dataloader:
+  type: DataLoader
+  args:
+    batch_size: 8
+    num_workers: 0
+
+optimizer:
+  type: SGD
+  args:
+    lr: 0.01
+    momentum: 0.9
+    weight_decay: 3e-3
+
+lr_scheduler:
+  type: OneCycleLR
+  args: {}
+
+loss:
+  type: MultiObjectiveLoss
+  args:
+    losses:
+      - type: TemperatureScaledCELoss
+        args:
+          temperature: 1.0
+          use_class_weights: true
+    lambdas:
+      - 1.0
+    lambda_warmup_epochs:  # (0 = immediate)
+      - 0
+
+ood_eval:
+  enabled: true
+  eval_freq: 100
+  plot_emb_tsne: false
+  plot_emb_umap: false
+  methods:
+    - type: MSPScore
+      args: {}
+    - type: NearestNeighborScore
+      args:
+        k: 1
+        distance_metric: euclidean  
+    - type: MahalanobisScore
+      args:
+        normalize: false
+    - type: EmbeddingCenterScore
+      args: 
+        distance_metric: euclidean
+  metrics:
+    - auroc
+    - fpr95
+  data:
+    type: near    # near or far
+    far_ood_subtype: same   # same, diff, or all; relevant for type far only

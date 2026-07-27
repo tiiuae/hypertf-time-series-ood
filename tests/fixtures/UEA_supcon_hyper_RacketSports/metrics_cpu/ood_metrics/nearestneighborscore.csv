@@ -1,0 +1,11 @@
+epoch,ood_dataset,auroc,fpr95
+3,All_Averaged,96.80481453252031,11.25
+3,All_Combined,97.01005025125629,15.0
+3,BasicMotions,88.875,35.0
+3,Cricket,96.29166666666666,15.0
+3,ERing,98.16666666666666,5.0
+3,Epilepsy,99.25,5.0
+3,Handwriting,95.79268292682926,15.0
+3,Libras,100.0,0.0
+3,NATOPS,100.0,0.0
+3,UWaveGestureLibrary,96.0625,15.0

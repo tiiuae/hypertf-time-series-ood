@@ -1,0 +1,4 @@
+epoch,ood_dataset,auroc,fpr95
+3,All_Averaged,65.125,50.0
+3,All_Combined,65.125,50.0
+3,Epilepsy,65.125,50.0
